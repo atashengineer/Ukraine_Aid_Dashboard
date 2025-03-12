@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ukraine Aid Dashboard</title>
+    <style>
+        :root {
+            --primary: #0a192f;
+            --secondary: #5142fc;
+            --accent: #00f2ff;
+            --text: #8892b0;
+            --text-light: #e6f1ff;
+            --background: #0f1a2e;
+            --card-bg: #162033;
+            --border: #2d3952;
+            --success: #64ffda;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        header {
+            padding: 1.5rem 2rem;
+            background-color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            letter-spacing: -0.5px;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .ukraine-flag {
+            width: 28px;
+            height: 20px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0057b7 50%, #ffd700 50%);
+            border-radius: 2px;
+        }
+        
+        .dashboard-intro {
+            padding: 4rem 0 3rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .dashboard-intro h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+        
+        .dashboard-intro p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .glow-bg {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(81, 66, 252, 0.15) 0%, rgba(0, 242, 255, 0.05) 50%, rgba(10, 25, 47, 0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            filter: blur(40px);
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 25px rgba(81, 66, 252, 0.1);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--secondary), var(--accent));
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--text-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-subtext {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        
+        .dashboard-section {
+            margin-bottom: 4rem;
+        }
+        
+        .section-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            position: relative;
+            padding-left: 1rem;
+        }
+        
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--secondary), var(--accent));
+            border-radius: 4px;
+        }
+        
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 5rem;
+        }
+        
+        .chart-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: 400px;
+            position: relative;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .chart-legend {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .data-table-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, 
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .data-table th {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .data-table tr:not(:last-child) td {
+            border-bottom: 1px solid rgba(45, 57, 82, 0.5);
+        }
+        
+        .data-table tbody tr {
+            transition: background-color 0.2s;
+        }
+        
+        .data-table tbody tr:hover {
+            background-color: rgba(81, 66, 252, 0.05);
+        }
+        
+        .data-table td:last-child {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-military {
+            background-color: rgba(81, 66, 252, 0.1);
+            color: var(--secondary);
+        }
+        
+        .badge-humanitarian {
+            background-color: rgba(100, 255, 218, 0.1);
+            color: var(--success);
+        }
+        
+        .badge-financial {
+            background-color: rgba(0, 242, 255, 0.1);
+            color: var(--accent);
+        }
+        
+        .badge-mixed {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        footer {
+            background-color: var(--primary);
+            border-top: 1px solid var(--border);
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .note-card {
+            background-color: rgba(81, 66, 252, 0.05);
+            border: 1px solid rgba(81, 66, 252, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .note-icon {
+            min-width: 32px;
+            height: 32px;
+            background-color: rgba(81, 66, 252, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        
+        .note-content h3 {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .dashboard-intro h2 {
+                font-size: 2rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="ukraine-flag"></div>
+                    <h1>Ukraine<span>Aid</span> Dashboard</h1>
+                </div>
+                <div class="date">Updated March 2025</div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <section class="dashboard-intro">
+            <div class="glow-bg"></div>
+            <h2>Ukraine International Aid Analytics</h2>
+            <p>Comprehensive visualization of aid provided to Ukraine, showcasing military, humanitarian, and financial support from the international community.</p>
+        </section>
+        
+        <section class="dashboard-section">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">Total Aid Committed</div>
+                    <div class="stat-value" id="total_aid">Loading...</div>
+                    <div class="stat-subtext">From all supporting countries since 2022</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Military Aid</div>
+                    <div class="stat-value" id="military_aid">Loading...</div>
+                    <span class="stat-subtext" id="mil_percent">Loading...</span>
+                    <span class="stat-subtext2">of total aid committed</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Humanitarian Aid</div>
+                    <div class="stat-value" id="hum_aid">Loading...</div>
+                    <span class="stat-subtext" id="hum_percent">Loading...</span>
+                    <span class="stat-subtext2">of total aid committed</span>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Financial Aid</div>
+                    <div class="stat-value" id="fin_aid">Loading...</div>
+                    <span class="stat-subtext" id="fin_percent">Loading...</span>
+                    <span class="stat-subtext2">of total aid committed</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Aid Distribution Analytics</h2>
+            </div>
+            
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Aid by Top Contributing Countries (Billions EUR)</div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #5142fc;"></div>
+                                <span>Military</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #64ffda;"></div>
+                                <span>Humanitarian</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #00f2ff;"></div>
+                                <span>Financial</span>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="countryAidChart"></canvas>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Aid Timeline (Quarterly, Billions EUR)</div>
+                    </div>
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Military Aid by Category</div>
+                    </div>
+                    <canvas id="militaryCategoryChart"></canvas>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Humanitarian Aid Distribution</div>
+                    </div>
+                    <canvas id="humanitarianDistributionChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Top Aid Packages</h2>
+            </div>
+            
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Country</th>
+                            <th>Type</th>
+                            <th>Value (EUR)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="date">Loading...</td>
+                            <td id="country">Loading...</td>
+                            <td><span id="type" class="badge badge-financial">Loading...</span></td>
+                            <td id="amount">Loading...</td>
+                        </tr>
+                        <tr>
+                            <td id="date_2">Loading...</td>
+                            <td id="country_2">Loading...</td>
+                            <td><span id="type_2" class="badge badge-financial">Loading...</span></td>
+                            <td id="amount2">Loading...</td>
+                        </tr>
+                        <tr>
+                            <td id="date_3">Loading...</td>
+                            <td id="country_3">Loading...</td>
+                            <td><span id="type_3" class="badge badge-military">Loading...</span></td>
+                            <td id="amount3">Loading...</td>
+                        </tr>
+                        </tr>
+                        <tr>
+                            <td id="date_4">Loading...</td>
+                            <td id="country_4">Loading...</td>
+                            <td><span id="type_4" class="badge badge-financial">Loading...</span></td>
+                            <td id="amount4">Loading...</td>
+                        </tr>
+                        <tr>
+                            <td id="date_5">Loading...</td>
+                            <td id="country_5">Loading...</td>
+                            <td><span id="type_5" class="badge badge-military">Loading...</span></td>
+                            <td id="amount5">Loading...</td>
+                        </tr>
+                        <tr>
+                            <td id="date_6">Loading...</td>
+                            <td id="country_6">Loading...</td>
+                            <td><span id="type_6" class="badge badge-military">Loading...</span></td>
+                            <td id="amount6">Loading...</td>
+                        </tr>
+                        <tr>
+                            <td id="date_7">Loading...</td>
+                            <td id="country_7">Loading...</td>
+                            <td><span id="type_7" class="badge badge-military">Loading...</span></td>
+                            <td id="amount7">Loading...</td>
+                        </tr>
+                        <tr>
+                            <td id="date_8">Loading...</td>
+                            <td id="country_8">Loading...</td>
+                            <td><span id="type_8" class="badge badge-financial">Loading...</span></td>
+                            <td id="amount8">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>Ukraine Aid Dashboard • Example Visualization • Data source: Kiel Institute for the world economy</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Load the JSON data - use a relative path
+        fetch('./data.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("top_aid:", data.top_aid);
+                console.log("Full data:", data);
+                
+                // Update summary statistics
+                const summaryElements = {
+                    'total_aid': data.total_aid,
+                    'mil_percent': data.military_percent,
+                    'hum_percent': data.humanitarian_percent,
+                    'fin_percent': data.financial_percent,
+                    'military_aid': data.military_aid,
+                    'hum_aid': data.humanitarian_aid,
+                    'fin_aid': data.financial_aid
+                };
+                
+                // Update summary elements
+                Object.entries(summaryElements).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = value;
+                });
+                
+                // Update top aid entries
+                const entryFields = ['announcement_date', 'country', 'aid_type_general', 'tot_activity_value_eur'];
+                const fieldDisplayMap = {
+                    'announcement_date': 'date',
+                    'country': 'country',
+                    'aid_type_general': 'type',
+                    'tot_activity_value_eur': 'amount'
+                };
+                
+                // Loop through each top aid entry (0-7)
+                for (let i = 0; i < 8; i++) {
+                    const entry = data.top_aid[`entry_${i}`];
+                    if (!entry) continue;
+                    
+                    // Update each field for this entry
+                    entryFields.forEach(field => {
+                        const displayField = fieldDisplayMap[field];
+                        const elementId = field === 'tot_activity_value_eur' && i > 0 
+                            ? `${displayField}${i+1}` 
+                            : i === 0 ? displayField : `${displayField}_${i+1}`;
+                        
+                        const element = document.getElementById(elementId);
+                        if (element) element.textContent = entry[field];
+                    });
+                }
+            }).catch(error => {
+                console.error('Error loading data:', error);
+                // Show error to user
+                document.getElementById('title').textContent = 'Error loading data';
+            });
+    </script>
+    <script>
+        // Set chart defaults to match the dashboard theme
+        Chart.defaults.color = '#8892b0';
+        Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+        
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                // Country Aid Chart
+                const countryAidCtx = document.getElementById('countryAidChart').getContext('2d');
+                new Chart(countryAidCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.countries,
+                        datasets: [
+                            {
+                                label: 'Military Aid',
+                                data: data.military_aid_list,
+                                backgroundColor: '#5142fc'
+                            },
+                            {
+                                label: 'Humanitarian Aid',
+                                data: data.humanitarian_aid_list,
+                                backgroundColor: '#64ffda'
+                            },
+                            {
+                                label: 'Financial Aid',
+                                data: data.financial_aid_list,
+                                backgroundColor: '#00f2ff'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#162033',
+                                borderColor: '#2d3952',
+                                borderWidth: 1,
+                                titleColor: '#e6f1ff',
+                                bodyColor: '#e6f1ff',
+                                padding: 12,
+                                cornerRadius: 8
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: {
+                                    display: false,
+                                    color: 'rgba(45, 57, 82, 0.3)'
+                                },
+                                ticks: {
+                                    color: '#8892b0'
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                grid: {
+                                    color: 'rgba(45, 57, 82, 0.3)'
+                                },
+                                ticks: {
+                                    color: '#8892b0'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Billions EUR',
+                                    color: '#8892b0'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Timeline Chart
+                const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+                new Chart(timelineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Q1 2022', 'Q2 2022', 'Q3 2022', 'Q4 2022', 'Q1 2023', 'Q2 2023', 'Q3 2023', 'Q4 2023', 'Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024'],
+                        datasets: [
+                            {
+                                label: 'Total Aid',
+                                data: data.aid_by_quarter,
+                                borderColor: '#00f2ff',
+                                backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#5142fc',
+                                pointBorderColor: '#e6f1ff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                backgroundColor: '#162033',
+                                borderColor: '#2d3952',
+                                borderWidth: 1,
+                                titleColor: '#e6f1ff',
+                                bodyColor: '#e6f1ff',
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `$${context.parsed.y}B`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(45, 57, 82, 0.3)'
+                                },
+                                ticks: {
+                                    color: '#8892b0'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: 'rgba(45, 57, 82, 0.3)'
+                                },
+                                ticks: {
+                                    color: '#8892b0'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Billions EUR',
+                                    color: '#8892b0'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Military Category Chart
+                const militaryCategoryCtx = document.getElementById('militaryCategoryChart').getContext('2d');
+                new Chart(militaryCategoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.mil_breakdown_names,
+                        datasets: [{
+                            data: data.mil_breakdown_list,
+                            backgroundColor: [
+                                '#5142fc', '#634dfc', '#7659fc', '#8865fc', '#9b72fd', '#ae7efd'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#162033'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: '#e6f1ff',
+                                    padding: 15,
+                                    font: {
+                                        size: 11
+                                    },
+                                    boxWidth: 12,
+                                    boxHeight: 12
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#162033',
+                                borderColor: '#2d3952',
+                                borderWidth: 1,
+                                titleColor: '#e6f1ff',
+                                bodyColor: '#e6f1ff',
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.parsed}%`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+                
+                // Humanitarian Distribution Chart
+                const humanitarianCtx = document.getElementById('humanitarianDistributionChart').getContext('2d');
+                new Chart(humanitarianCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.hum_breakdown_names,
+                        datasets: [{
+                            data: data.hum_breakdown_list,
+                            backgroundColor: [
+                                '#64ffda', '#6effe0', '#7affe5', '#86ffea', '#92ffef', '#9efff4'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#162033'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: '#e6f1ff',
+                                    padding: 15,
+                                    font: {
+                                        size: 11
+                                    },
+                                    boxWidth: 12,
+                                    boxHeight: 12
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#162033',
+                                borderColor: '#2d3952',
+                                borderWidth: 1,
+                                titleColor: '#e6f1ff',
+                                bodyColor: '#e6f1ff',
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.parsed}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error loading data:', error));
+    </script>
+</body>
+</html>
